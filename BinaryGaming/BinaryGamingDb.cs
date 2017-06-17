@@ -60,4 +60,23 @@ namespace BinaryGaming
             AspNetUserId = r.AspNetUserId;
         }
     }
+
+    public partial class MembershipTypes
+    {
+        public MembershipTypes(ViewModelMembershipTypes vmRecord)
+        {
+            Id = vmRecord.IdMembershipType;
+            MembershipType = vmRecord.MembershipType;
+            AnnualFee = vmRecord.AnnualFee;
+            ProrataPayments = vmRecord.ProrataPayments;
+        }
+
+        public void Assign(MembershipTypes r)
+        {
+            Id = r.Id;
+            MembershipType = r.MembershipType;
+            AnnualFee = r.AnnualFee;
+            ProrataPayments = r.ProrataPayments;
+        }
+    }
 }

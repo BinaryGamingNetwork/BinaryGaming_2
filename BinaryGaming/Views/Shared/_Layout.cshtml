@@ -24,6 +24,10 @@
                     <li>@Html.ActionLink("Home", "Index", "Home")</li>
                     <li>@Html.ActionLink("About", "About", "Home")</li>
                     <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
+                    <li>@Html.ActionLink("Membership Types", "Index", "MembershipTypes", routeValues: null, htmlAttributes: new { title = "Membership Types" })</li>
+                    <li>@Html.ActionLink("Members List", "Index", "Members", routeValues: null, htmlAttributes: new { title = "Membership List" })</li>
+                    <li>Committee Positions</li>
+                    <li>Committee Members</li>
                 </ul>
                 @Html.Partial("_LoginPartial")
             </div>

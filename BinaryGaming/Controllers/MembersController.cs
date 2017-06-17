@@ -95,7 +95,7 @@ namespace BinaryGaming.Controllers
                     Members rMember = new Members(vmProfile);
                     if (mMembers.Insert(rMember) == false)
                     {
-                        ModelState.AddModelError("", mMembers.exception);
+                        ModelState.AddModelError("", mMembers.exception.GetBaseException().Message);
                         successYN = false;
                         break;
                     }

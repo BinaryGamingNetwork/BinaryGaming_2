@@ -1,0 +1,44 @@
+﻿@model IEnumerable<BinaryGaming.ViewModels.ViewModelMembershipTypes>
+
+@{
+    ViewBag.Title = "Membership Types";
+}
+
+<h2>Membership Types</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.MembershipType)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.AnnualFee)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ProrataPayments)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.MembershipType)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.AnnualFee)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.ProrataPayments)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id= item.IdMembershipType }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.IdMembershipType })
+        </td>
+    </tr>
+}
+
+</table>
