@@ -17,6 +17,9 @@ using System;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 
+using System.Data.Entity.Core.Objects;
+using System.Linq;
+
 
 public partial class BinaryGamingDataContainer : DbContext
 {
@@ -57,6 +60,40 @@ public partial class BinaryGamingDataContainer : DbContext
     public virtual DbSet<AspNetUserRole> AspNetUserRoles { get; set; }
 
     public virtual DbSet<AspNetRole> AspNetRoles { get; set; }
+
+
+    public virtual ObjectResult<GetMatchedMemberList_Result> GetMatchedMemberList(Nullable<int> requestedPage, Nullable<int> rowsPerPage, string searchString)
+    {
+
+        var requestedPageParameter = requestedPage.HasValue ?
+            new ObjectParameter("RequestedPage", requestedPage) :
+            new ObjectParameter("RequestedPage", typeof(int));
+
+
+        var rowsPerPageParameter = rowsPerPage.HasValue ?
+            new ObjectParameter("RowsPerPage", rowsPerPage) :
+            new ObjectParameter("RowsPerPage", typeof(int));
+
+
+        var searchStringParameter = searchString != null ?
+            new ObjectParameter("SearchString", searchString) :
+            new ObjectParameter("SearchString", typeof(string));
+
+
+        return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GetMatchedMemberList_Result>("GetMatchedMemberList", requestedPageParameter, rowsPerPageParameter, searchStringParameter);
+    }
+
+
+    public virtual ObjectResult<Nullable<int>> GetMatchedMemberListCount(string searchString)
+    {
+
+        var searchStringParameter = searchString != null ?
+            new ObjectParameter("SearchString", searchString) :
+            new ObjectParameter("SearchString", typeof(string));
+
+
+        return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Nullable<int>>("GetMatchedMemberListCount", searchStringParameter);
+    }
 
 }
 

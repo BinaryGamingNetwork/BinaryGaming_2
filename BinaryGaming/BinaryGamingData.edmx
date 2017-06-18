@@ -306,6 +306,14 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Function Name="GetMatchedMemberList" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="RequestedPage" Type="int" Mode="In" />
+          <Parameter Name="RowsPerPage" Type="int" Mode="In" />
+          <Parameter Name="SearchString" Type="nvarchar" Mode="In" />
+        </Function>
+        <Function Name="GetMatchedMemberListCount" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="SearchString" Type="nvarchar" Mode="In" />
+        </Function>
         <EntityContainer Name="BinaryGamingDataStoreContainer">
           <EntitySet Name="AspNetRoles" EntityType="Self.AspNetRoles" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="AspNetUserClaims" EntityType="Self.AspNetUserClaims" Schema="dbo" store:Type="Tables" />
@@ -443,6 +451,14 @@
             <End Role="AspNetRole" EntitySet="AspNetRoles" />
             <End Role="AspNetUserRole" EntitySet="AspNetUserRoles" />
           </AssociationSet>
+          <FunctionImport Name="GetMatchedMemberList" ReturnType="Collection(BinaryGamingData.GetMatchedMemberList_Result)">
+            <Parameter Name="RequestedPage" Mode="In" Type="Int32" />
+            <Parameter Name="RowsPerPage" Mode="In" Type="Int32" />
+            <Parameter Name="SearchString" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="GetMatchedMemberListCount" ReturnType="Collection(Int32)">
+            <Parameter Name="SearchString" Mode="In" Type="String" />
+          </FunctionImport>
         </EntityContainer>
         <EntityType Name="Members">
           <Key>
@@ -775,6 +791,29 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <ComplexType Name="GetMatchedMemberList_Result">
+          <Property Type="Int64" Name="RowNumber" Nullable="true" />
+          <Property Type="Int32" Name="Id" Nullable="false" />
+          <Property Type="String" Name="Surname" Nullable="false" MaxLength="40" />
+          <Property Type="String" Name="FirstName" Nullable="true" MaxLength="30" />
+          <Property Type="String" Name="MiddleNames" Nullable="true" MaxLength="30" />
+          <Property Type="String" Name="Address1" Nullable="false" MaxLength="40" />
+          <Property Type="String" Name="Address2" Nullable="true" MaxLength="40" />
+          <Property Type="String" Name="Suburb" Nullable="false" MaxLength="40" />
+          <Property Type="String" Name="State" Nullable="false" MaxLength="3" />
+          <Property Type="String" Name="Postcode" Nullable="false" MaxLength="4" />
+          <Property Type="String" Name="Phone" Nullable="true" MaxLength="25" />
+          <Property Type="String" Name="Email" Nullable="false" MaxLength="200" />
+          <Property Type="String" Name="Mobile" Nullable="true" MaxLength="25" />
+          <Property Type="DateTime" Name="DateJoined" Nullable="false" Precision="23" />
+          <Property Type="Boolean" Name="FinancialYN" Nullable="false" />
+          <Property Type="Int32" Name="MembershipTypesId" Nullable="false" />
+          <Property Type="DateTime" Name="MembershipExpiry" Nullable="false" Precision="23" />
+          <Property Type="String" Name="DiscordName" Nullable="true" MaxLength="40" />
+          <Property Type="Int64" Name="DiscordId" Nullable="true" />
+          <Property Type="DateTime" Name="LastLoggedIn" Nullable="false" Precision="23" />
+          <Property Type="String" Name="AspNetUserId" Nullable="false" MaxLength="128" />
+        </ComplexType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -932,6 +971,34 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="GetMatchedMemberList" FunctionName="BinaryGamingData.Store.GetMatchedMemberList">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="BinaryGamingData.GetMatchedMemberList_Result">
+                <ScalarProperty Name="RowNumber" ColumnName="RowNumber" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Surname" ColumnName="Surname" />
+                <ScalarProperty Name="FirstName" ColumnName="FirstName" />
+                <ScalarProperty Name="MiddleNames" ColumnName="MiddleNames" />
+                <ScalarProperty Name="Address1" ColumnName="Address1" />
+                <ScalarProperty Name="Address2" ColumnName="Address2" />
+                <ScalarProperty Name="Suburb" ColumnName="Suburb" />
+                <ScalarProperty Name="State" ColumnName="State" />
+                <ScalarProperty Name="Postcode" ColumnName="Postcode" />
+                <ScalarProperty Name="Phone" ColumnName="Phone" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="Mobile" ColumnName="Mobile" />
+                <ScalarProperty Name="DateJoined" ColumnName="DateJoined" />
+                <ScalarProperty Name="FinancialYN" ColumnName="FinancialYN" />
+                <ScalarProperty Name="MembershipTypesId" ColumnName="MembershipTypesId" />
+                <ScalarProperty Name="MembershipExpiry" ColumnName="MembershipExpiry" />
+                <ScalarProperty Name="DiscordName" ColumnName="DiscordName" />
+                <ScalarProperty Name="DiscordId" ColumnName="DiscordId" />
+                <ScalarProperty Name="LastLoggedIn" ColumnName="LastLoggedIn" />
+                <ScalarProperty Name="AspNetUserId" ColumnName="AspNetUserId" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="GetMatchedMemberListCount" FunctionName="BinaryGamingData.Store.GetMatchedMemberListCount" />
           </EntityContainerMapping>
 </Mapping></edmx:Mappings>
   </edmx:Runtime>

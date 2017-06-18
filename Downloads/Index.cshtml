@@ -1,0 +1,291 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Employees</h2>
+<hr />
+<p>
+    @Html.ActionLink(linkText: "Create New", actionName: "Create", routeValues: "", htmlAttributes: new { @class = "btn btn-primary" } )
+</p>
+<hr />
+<div>
+    <div>
+        <span>Search:</span>
+        <span><input id="searchfield" type="text" /></span>
+        <span><a id="clearsearch" class="btn btn-primary btn-xs">Clear</a></span>
+    </div>
+    <style>
+        table tr {
+            background-color: silver;
+            text-align: left;
+        }
+
+        table th {
+            text-align: left;
+        }
+
+        table td {
+            padding: 8px;
+        }
+    </style>
+    <table id="employeelist" class="table">
+        <tr>
+            <th>Status</th>
+            <th>Name</th>
+            <th>Address</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </table>
+    <div>
+        <style>
+#pagination li {
+    display: inline-block;
+    border: solid thin blue;
+    padding: 5px;
+    margin: 2px;
+}
+        </style>
+        <ul id="pagination">
+            <li><a id="firstpage">First</a></li>
+            <li><a id="previouspage">Previous</a></li>
+            <li><a id="nextpage">Next</a></li>
+            <li><a id="lastpage">last</a></li>
+        </ul>
+    </div>
+</div>
+<script type="text/javascript" src="~/Scripts/ajaxScript.js"></script>
+<script type="text/javascript" src="~/Scripts/Sitejs.js"></script>
+<script type="text/javascript">
+    var currentPage = 1;
+    var rowsPerPage = 6;
+    var pageCount = -1;
+    var timerHandle;
+    var buttonContainer = document.getElementById('pagination');
+    var buttonFirstPage = document.getElementById('firstpage');
+    var buttonPreviousPage = document.getElementById('previouspage');
+    var buttonNextPage = document.getElementById('nextpage');
+    var buttonLastPage = document.getElementById('lastpage');
+    var searchField = document.getElementById('searchfield');
+    var searchClear = document.getElementById('clearsearch');
+
+    function callbackLoginCreate(jsonData) {
+        var alertMessage = '';
+
+        if (jsonData.Result == true) {
+            alertMessage = jsonData.Message + '\r\n\r\nUser Id: ' + jsonData.UserId + '\r\nPassword: ' + jsonData.Password;
+            loadList(currentPage, rowsPerPage, searchField.value);
+        }
+        else {
+            alertMessage = jsonData.Message;
+        }
+        alert(alertMessage);
+    }
+
+    function callbackErrorLoginCreate(status, responseText) {
+        alert('Error: ' + status + ' returned from server');
+    }
+
+
+    function requestLoginCreateHandler(idEmployee) {
+        var parameters = '';
+        var urlTemplate = '@Url.RouteUrl(RoutePaths.Default, new { action = "CreateLogin", controller = "Employees", id = "*id*" })';
+        var url = urlTemplate.replace('*id*', idEmployee);
+        ajax(url, parameters, callbackLoginCreate, callbackErrorLoginCreate);
+    }
+
+
+    function requestResetPasswordHandler(idEmployee) {
+        var parameters = '';
+        var urlTemplate = '@Url.RouteUrl(RoutePaths.Default, new { action = "ResetPassword", controller = "Employees", id = "*id*" })';
+        var url = urlTemplate.replace('*id*', idEmployee);
+        ajax(url, parameters, callbackLoginCreate, callbackErrorLoginCreate);
+    }
+
+
+    function callback(jsonData) {
+        currentPage = jsonData.page;
+        pageCount = jsonData.pageCount;
+        var data = jsonData.data;
+
+        var actionEditTemplate = '@Url.RouteUrl(RoutePaths.Default, new { controller = "Employees", action = "Edit", id = "*id*" })';
+        var actionDeleteTemplate = '@Url.RouteUrl(RoutePaths.Default, new { controller = "Employees", action = "Delete", id = "*id*" })';
+        var actionPlacementsTemplate = '@Url.RouteUrl(RoutePaths.WithContext, new { context = CallerView.Employees, controller = "Placements", action = "Index", id = "*id*" })';
+        var actionTimesheetsTemplate = '@Url.RouteUrl(RoutePaths.WithContext, new { context = CallerView.Employees, controller = "Timesheets", action = "Index", id = "*id*" })';
+        var actionResetPasswordTemplate = 'javascript: requestResetPasswordHandler(*id*)';
+        var actionCreateLoginTemplate = 'javascript: requestLoginCreateHandler(*id*)';
+
+
+        var employeeTable = document.getElementById('employeelist');
+        deleteTableRows(employeeTable);
+
+        for (var row = 0; row < data.length; row++) {
+            var tableRow1 = document.createElement('TR');
+            var tableRow2 = document.createElement('TR');
+
+            var cellStatus = document.createElement('TD');
+            var cellName = document.createElement('TD');
+            var cellAddress = document.createElement('TD');
+//            var cellEmail = document.createElement('TD');
+//            var cellPhone = document.createElement('TD');
+            var cellCommands = document.createElement('TD');
+
+            var cellStatusText = document.createTextNode(data[row].Status);
+            var cellNameText = document.createTextNode(FormatName(data[row].Surname, data[row].FirstName, data[row].MiddleNames));
+            var cellAddressText = document.createTextNode(FormatAddress(data[row].Address1, data[row].Address2, data[row].Suburb, data[row].State, data[row].PostCode));
+//            var cellEmailText = document.createTextNode(data[row].EmailAddress);
+//            var cellPhoneText = document.createTextNode(data[row].Phone);
+
+            cellStatus.appendChild(cellStatusText);
+            cellName.appendChild(cellNameText);
+            cellAddress.appendChild(cellAddressText);
+//            cellEmail.appendChild(cellEmailText);
+//            cellPhone.appendChild(cellPhoneText);
+
+            var actionEdit = document.createElement('A');
+            var actionDelete = document.createElement('A');
+            var actionPlacements = document.createElement('A');
+            var actionTimesheets = document.createElement('A');
+            var actionManageLogin = document.createElement('A');
+
+            actionEdit.appendChild(document.createTextNode('Edit'));
+            actionDelete.appendChild(document.createTextNode('Delete'));
+            actionPlacements.appendChild(document.createTextNode('Placements'));
+            actionTimesheets.appendChild(document.createTextNode('Timesheets'));
+
+            actionEdit.href = actionEditTemplate.replace('*id*', data[row].IdEmployee);
+            actionDelete.href = actionDeleteTemplate.replace('*id*', data[row].IdEmployee);
+            actionPlacements.href = actionPlacementsTemplate.replace('*id*', data[row].IdEmployee);
+            actionTimesheets.href = actionTimesheetsTemplate.replace('*id*', data[row].IdEmployee);
+
+            if (data[row].IdUser != null && data[row].IdUser != 0) {
+                actionManageLogin.appendChild(document.createTextNode('Reset Password'));
+                actionManageLogin.href = actionResetPasswordTemplate.replace('*id*', data[row].IdEmployee);
+            }
+            else {
+                actionManageLogin.appendChild(document.createTextNode('Create Login'));
+                actionManageLogin.href = actionCreateLoginTemplate.replace('*id*', data[row].IdEmployee);
+            }
+
+            actionEdit.className = 'btn btn-primary btn-xs';
+            actionPlacements.className = 'btn btn-primary btn-xs';
+            actionTimesheets.className = 'btn btn-primary btn-xs';
+            actionManageLogin.className = 'btn btn-primary btn-xs';
+            actionDelete.className = 'btn btn-danger btn-xs';
+
+            cellCommands.appendChild(actionEdit);
+            cellCommands.appendChild(document.createTextNode('\xA0'));
+            cellCommands.appendChild(actionPlacements);
+            cellCommands.appendChild(document.createTextNode('\xA0'));
+            cellCommands.appendChild(actionTimesheets);
+            cellCommands.appendChild(document.createTextNode('\xA0'));
+            cellCommands.appendChild(actionManageLogin);
+            cellCommands.appendChild(document.createTextNode('\xA0'));
+            cellCommands.appendChild(actionDelete);
+
+            tableRow1.appendChild(cellStatus);
+            tableRow1.appendChild(cellName);
+            tableRow1.appendChild(cellAddress);
+//            tableRow1.appendChild(document.createElement('TD'));
+//            tableRow2.appendChild(document.createElement('TD'));
+//            tableRow2.appendChild(cellEmail);
+//            tableRow2.appendChild(cellPhone);
+            tableRow1.appendChild(cellCommands);
+
+            if (row % 2 == 1) {
+                tableRow1.style.backgroundColor = "#EEEEFF";
+                tableRow2.style.backgroundColor = "#EEEEFF";
+            }
+            else {
+                tableRow1.style.backgroundColor = "#FFFFFF";
+                tableRow2.style.backgroundColor = "#FFFFFF";
+            }
+
+            employeeTable.appendChild(tableRow1);
+  //          employeeTable.appendChild(tableRow2);
+
+        }
+    }
+
+    function searchExecute() {
+        if (timerHandle != null) {
+            window.clearTimeout(timerHandle);
+            timerHandle = null;
+        }
+
+        currentPage = 1;
+
+        loadList(currentPage, rowsPerPage, searchField.value);
+    }
+
+    function loadList(page, rows, searchvalue) {
+        var parameters = '@HttpRequestSearchParameters.RequestedPage=' + page + '&@HttpRequestSearchParameters.RowsPerPage=' + rows + '&@HttpRequestSearchParameters.SearchString=' + searchvalue.trim();
+        ajax('@Url.RouteUrl( new { controller = "Employees", action = "EmployeeList" })', parameters, callback);
+    }
+
+    function searchFieldKeyHandler() {
+        if (timerHandle != null) {
+            window.clearTimeout(timerHandle);
+            timerHandle = null;
+        }
+
+        timerHandle = window.setTimeout(searchExecute, 500);
+    }
+
+    function searchButtonClickHandler(e) {
+
+        var stopPropergation = false;
+
+        if (e.target !== e.currentTarget) {
+            stopPropergation = true;
+
+            switch (e.target.id) {
+                case buttonFirstPage.id:
+                    currentPage = 1
+                    break;
+
+                case buttonPreviousPage.id:
+                    if (currentPage > 1)
+                        currentPage -= 1;
+
+                    break;
+
+                case buttonNextPage.id:
+                    if (currentPage < pageCount)
+                        currentPage += 1;
+                    break;
+
+                case buttonLastPage.id:
+                    currentPage = pageCount;
+                    break;
+
+                default:
+                    stopPropergation = false;
+                    break;
+            }
+
+            if (stopPropergation == true)
+                loadList(currentPage, rowsPerPage, searchField.value);
+        }
+
+        if (stopPropergation == true)
+            e.stopPropagation();
+    }
+
+    searchField.onkeydown = searchFieldKeyHandler;
+    searchClear.onclick = function ()
+    {
+        searchField.value = '';
+        searchExecute();
+    }
+
+    buttonContainer.addEventListener("click", searchButtonClickHandler, false)
+    loadList(currentPage, rowsPerPage, '');
+
+
+</script>
+
+
+
+

@@ -232,9 +232,13 @@
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\MembersController.cs" />
     <Compile Include="Controllers\MembershipTypesController.cs" />
+    <Compile Include="GetMatchedMemberList_Result.cs">
+      <DependentUpon>BinaryGamingData.tt</DependentUpon>
+    </Compile>
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="GlobalConstants.cs" />
     <Compile Include="Invoices.cs">
       <DependentUpon>BinaryGamingData.tt</DependentUpon>
     </Compile>
@@ -287,6 +291,7 @@
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
+    <Content Include="Scripts\ajaxScript.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <EntityDeploy Include="BinaryGamingData.edmx">
@@ -321,6 +326,7 @@
     <Content Include="Scripts\respond.matchmedia.addListener.js" />
     <Content Include="Scripts\respond.matchmedia.addListener.min.js" />
     <Content Include="Scripts\respond.min.js" />
+    <Content Include="Scripts\Sitejs.js" />
     <Content Include="Scripts\_references.js" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
@@ -365,6 +371,7 @@
     <Content Include="Views\MembershipTypes\Create.cshtml" />
     <Content Include="Views\MembershipTypes\Edit.cshtml" />
     <Content Include="Views\MembershipTypes\Delete.cshtml" />
+    <Content Include="Views\Members\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Code\" />

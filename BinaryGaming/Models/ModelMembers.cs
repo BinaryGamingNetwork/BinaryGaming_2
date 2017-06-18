@@ -13,6 +13,40 @@ namespace BinaryGaming.Models
 
         }
 
+        public IList<GetMatchedMemberList_Result> GetMatchedMemberList(Int32 requestedPage, Int32 rowsPerPage, String searchParameter)
+        {
+            var query = from t in _dataContext.GetMatchedMemberList(requestedPage, rowsPerPage, searchParameter)
+                        select t;
+
+            return query.ToList();
+        }
+
+        public Int32 GetMatchedMemberListPageCount(Int32 rowsPerPage, String searchParameter)
+        {
+            Int32 returnValue = 0;
+            Int32 rows = 0;
+
+            var query = (from t in _dataContext.GetMatchedMemberListCount(searchParameter)
+                         select t).FirstOrDefault();
+
+            rows = query.Value;
+
+            if (rowsPerPage > 0)
+            {
+                if ((rows % rowsPerPage) == 0)
+                    returnValue = ((Int32)(rows / rowsPerPage));
+                else
+                    returnValue = ((Int32)(rows / rowsPerPage)) + 1;
+
+            }
+            else
+                returnValue = rows;
+
+            return (returnValue);
+
+        }
+
+
         public bool IsProfileExist(String ProfileId)
         {
             bool returnValue = true;

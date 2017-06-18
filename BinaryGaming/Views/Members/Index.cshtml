@@ -1,0 +1,223 @@
+﻿@model IEnumerable<BinaryGaming.GetMatchedMemberList_Result>
+
+@{
+    ViewBag.Title = "Members";
+}
+
+<h2>Members</h2>
+<hr />
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<div>
+    <div>
+        <span>Search:</span>
+        <span><input id="searchfield" type="text" /></span>
+        <span><a id="clearsearch" class="btn btn-primary btn-xs">Clear</a></span>
+    </div>
+    <style>
+        table tr {
+            background-color: silver;
+            text-align: left;
+        }
+
+        table th {
+            text-align: left;
+        }
+
+        table td {
+            padding: 8px;
+        }
+    </style>
+    <table id="memberslist" class="table">
+        <tr>
+            <th>Status</th>
+            <th>Name</th>
+            <th>Address</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </table>
+    <div>
+        <style>
+            #pagination li {
+                display: inline-block;
+                border: solid thin blue;
+                padding: 5px;
+                margin: 2px;
+            }
+        </style>
+        <ul id="pagination">
+            <li><a id="firstpage">First</a></li>
+            <li><a id="previouspage">Previous</a></li>
+            <li><a id="nextpage">Next</a></li>
+            <li><a id="lastpage">last</a></li>
+        </ul>
+    </div>
+</div>
+
+<script type="text/javascript" src="~/Scripts/ajaxScript.js"></script>
+<script type="text/javascript" src="~/Scripts/Sitejs.js"></script>
+<script type="text/javascript">
+    var currentPage = 1;
+    var rowsPerPage = 6;
+    var pageCount = -1;
+    var timerHandle;
+    var buttonContainer = document.getElementById('pagination');
+    var buttonFirstPage = document.getElementById('firstpage');
+    var buttonPreviousPage = document.getElementById('previouspage');
+    var buttonNextPage = document.getElementById('nextpage');
+    var buttonLastPage = document.getElementById('lastpage');
+    var searchField = document.getElementById('searchfield');
+    var searchClear = document.getElementById('clearsearch');
+
+
+    function callback(jsonData) {
+        currentPage = jsonData.page;
+        pageCount = jsonData.pageCount;
+        var data = jsonData.data;
+
+        var actionEditTemplate = '@Url.RouteUrl(RoutePaths.Default, new { controller = "Members", action = "Edit", id = "*id*" })';
+        var actionDetailsTemplate = '@Url.RouteUrl(RoutePaths.Default, new { controller = "Members", action = "Details", id = "*id*" })';
+        var actionDeleteTemplate = '@Url.RouteUrl(RoutePaths.Default, new { controller = "Members", action = "Delete", id = "*id*" })';
+
+
+        var membersTable = document.getElementById('memberslist');
+        deleteTableRows(membersTable);
+
+        for (var row = 0; row < data.length; row++) {
+            var tableRow1 = document.createElement('TR');
+            var tableRow2 = document.createElement('TR');
+
+            var cellStatus = document.createElement('TD');
+            var cellName = document.createElement('TD');
+            var cellAddress = document.createElement('TD');
+            var cellCommands = document.createElement('TD');
+
+//            var cellStatusText = document.createTextNode(data[row].Status);
+            var cellStatusText = document.createTextNode(' ');
+            var cellNameText = document.createTextNode(FormatName(data[row].Surname, data[row].FirstName, data[row].MiddleNames));
+            var cellAddressText = document.createTextNode(FormatAddress(data[row].Address1, data[row].Address2, data[row].Suburb, data[row].State, data[row].PostCode));
+
+            cellStatus.appendChild(cellStatusText);
+            cellName.appendChild(cellNameText);
+            cellAddress.appendChild(cellAddressText);
+
+            var actionEdit = document.createElement('A');
+            var actionDelete = document.createElement('A');
+            var actionDetails = document.createElement('A');
+
+            actionEdit.appendChild(document.createTextNode('Edit'));
+            actionDelete.appendChild(document.createTextNode('Delete'));
+            actionDetails.appendChild(document.createTextNode('Details'));
+
+            actionEdit.href = actionEditTemplate.replace('*id*', data[row].Id);
+            actionDelete.href = actionDeleteTemplate.replace('*id*', data[row].Id);
+            actionDetails.href = actionDetailsTemplate.replace('*id*', data[row].Id);
+
+            actionEdit.className = 'btn btn-primary btn-xs';
+            actionDetails.className = 'btn btn-primary btn-xs';
+            actionDelete.className = 'btn btn-danger btn-xs';
+
+            cellCommands.appendChild(actionEdit);
+            cellCommands.appendChild(document.createTextNode('\xA0'));
+            cellCommands.appendChild(actionDetails);
+            cellCommands.appendChild(document.createTextNode('\xA0'));
+            cellCommands.appendChild(actionDelete);
+
+            tableRow1.appendChild(cellStatus);
+            tableRow1.appendChild(cellName);
+            tableRow1.appendChild(cellAddress);
+            tableRow1.appendChild(cellCommands);
+
+            if (row % 2 == 1) {
+                tableRow1.style.backgroundColor = "#EEEEFF";
+                tableRow2.style.backgroundColor = "#EEEEFF";
+            }
+            else {
+                tableRow1.style.backgroundColor = "#FFFFFF";
+                tableRow2.style.backgroundColor = "#FFFFFF";
+            }
+
+            membersTable.appendChild(tableRow1);
+
+        }
+    }
+
+    function searchExecute() {
+        if (timerHandle != null) {
+            window.clearTimeout(timerHandle);
+            timerHandle = null;
+        }
+
+        currentPage = 1;
+
+        loadList(currentPage, rowsPerPage, searchField.value);
+    }
+
+    function loadList(page, rows, searchvalue) {
+        var parameters = '@HttpRequestSearchParameters.RequestedPage=' + page + '&@HttpRequestSearchParameters.RowsPerPage=' + rows + '&@HttpRequestSearchParameters.SearchString=' + searchvalue.trim();
+        ajax('@Url.RouteUrl( new { controller = "Members", action = "MembersList" })', parameters, callback);
+    }
+
+    function searchFieldKeyHandler() {
+        if (timerHandle != null) {
+            window.clearTimeout(timerHandle);
+            timerHandle = null;
+        }
+
+        timerHandle = window.setTimeout(searchExecute, 500);
+    }
+
+    function searchButtonClickHandler(e) {
+
+        var stopPropergation = false;
+
+        if (e.target !== e.currentTarget) {
+            stopPropergation = true;
+
+            switch (e.target.id) {
+                case buttonFirstPage.id:
+                    currentPage = 1
+                    break;
+
+                case buttonPreviousPage.id:
+                    if (currentPage > 1)
+                        currentPage -= 1;
+
+                    break;
+
+                case buttonNextPage.id:
+                    if (currentPage < pageCount)
+                        currentPage += 1;
+                    break;
+
+                case buttonLastPage.id:
+                    currentPage = pageCount;
+                    break;
+
+                default:
+                    stopPropergation = false;
+                    break;
+            }
+
+            if (stopPropergation == true)
+                loadList(currentPage, rowsPerPage, searchField.value);
+        }
+
+        if (stopPropergation == true)
+            e.stopPropagation();
+    }
+
+    searchField.onkeydown = searchFieldKeyHandler;
+    searchClear.onclick = function ()
+    {
+        searchField.value = '';
+        searchExecute();
+    }
+
+    buttonContainer.addEventListener("click", searchButtonClickHandler, false)
+    loadList(currentPage, rowsPerPage, '');
+
+
+</script>

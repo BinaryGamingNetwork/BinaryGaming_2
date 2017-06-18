@@ -1,0 +1,53 @@
+﻿@model SwDocuments.ViewModels.ViewModelDocumentFolder
+
+@{
+    ViewBag.Title = "Edit Folder";
+}
+
+<script type="text/javascript" src="~/Scripts/ajaxScript.js"></script>
+<script type="text/javascript" src="~/Scripts/Sitejs.js"></script>
+
+<h2>Edit Document Folder</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+        <hr />
+        @Html.HiddenFor(model => model.idFolder, new { htmlAttributes = new { @class = "form-control" } })
+        @Html.HiddenFor(model => model.idParentCategory, new { htmlAttributes = new { @class = "form-control" } })
+
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.parentCategory, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DisplayFor(model => model.parentCategory, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.parentCategory, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.folderName, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.folderName, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.folderName, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        @{
+            Html.RenderPartial("ctlFolderLookup", Model);
+        }
+
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index", new { controller = "Categories", id = Model.idParentCategory })
+</div>

@@ -19,6 +19,36 @@ namespace BinaryGaming.Controllers
             return View();
         }
 
+        [HttpPost]
+        [Authorize()]
+        public JsonResult MembersList()
+        {
+            IList<GetMatchedMemberList_Result> list = null;
+
+            Int32 pageRequested = 1;
+            Int32 rowsPerPage = 20;
+            Int32 pageCount = -1;
+            String searchParameter = String.Empty;
+
+            if (Request.Params[HttpRequestSearchParameters.RequestedPage] != null)
+                pageRequested = Convert.ToInt32(this.Request.Params[HttpRequestSearchParameters.RequestedPage]);
+
+            if (Request.Params[HttpRequestSearchParameters.RowsPerPage] != null)
+                rowsPerPage = Convert.ToInt32(this.Request.Params[HttpRequestSearchParameters.RowsPerPage]);
+
+            if (Request.Params[HttpRequestSearchParameters.SearchString] != null)
+                searchParameter = Convert.ToString(this.Request.Params[HttpRequestSearchParameters.SearchString]);
+
+            ModelMembers mMembers = new ModelMembers(this);
+            if (searchParameter == "")
+                pageCount = mMembers.GetMatchedMemberListPageCount(rowsPerPage, searchParameter);
+
+            list = mMembers.GetMatchedMemberList(pageRequested, rowsPerPage, searchParameter);
+
+            return Json(new { page = pageRequested, rows = rowsPerPage, pageCount = pageCount, data = list });
+        }
+
+
         [Authorize]
         public ActionResult MyProfile()
         {
